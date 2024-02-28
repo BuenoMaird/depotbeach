@@ -1,17 +1,25 @@
-const express = require("express");
+import express from "express";
+import cors from "cors";
+import users from "./routes/users.js";
+import mongoose from "mongoose"
+
+const PORT = process.env.PORT || 5050;
 const app = express();
-const cors = require("cors");
-require("dotenv").config({ path: "./config.env" });
-const port = process.env.PORT || 5000;
+
 app.use(cors());
 app.use(express.json());
-app.use(require("./routes/users"));
-// get driver connection
-const dbo = require("./db/conn");
-app.listen(port, () => {
-  // perform a database connection when server starts
-  dbo.connectToServer(function (err) {
-    if (err) console.error(err);
-   });
-  console.log(`Server is running on port: ${port}`);
+app.use("/api/user", users);
+
+const URI = process.env.ATLAS_URI || "";
+mongoose.connect(URI)
+.then(() => {
+  console.log("mongoose connected")
+})
+.catch((err) => {
+  console.log("mongoose failed to connect" + " " + err)
+})
+
+// start the Express server
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
